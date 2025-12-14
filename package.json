@@ -1,14 +1,21 @@
 {
   "name": "adhd-coach-app",
-  "private": true,
   "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm start --prefix backend\"",
-    "frontend:dev": "npm run dev --prefix frontend",
-    "backend:start": "npm start --prefix backend",
-    "install:all": "npm install --prefix backend && npm install --prefix frontend"
+    "dev": "cd apps/web && npm run dev",
+    "build": "cd apps/web && npm run build",
+    "seed": "npx tsx scripts/seed.ts"
   },
   "devDependencies": {
-    "concurrently": "^9.0.1"
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.30.2",
+    "tsx": "^4.19.2"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.38.3",
+    "openai": "^4.104.0",
+    "postgres": "^3.4.5"
   }
 }

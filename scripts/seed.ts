@@ -1,6 +1,14 @@
 // scripts/seed.ts
-import { db, promptVersions, buildLog } from '../packages/database';
-import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config({ path: '.env.local' });
+
+const connectionString = process.env.DATABASE_URL!;
+const sql = postgres(connectionString);
+const db = drizzle(sql);
 
 const COACHING_PROMPT_V1 = `Role
 
@@ -62,43 +70,43 @@ async function seed() {
   console.log('🌱 Starting seed...');
 
   try {
-    // 1. Insert v1.0 system prompt
+    // Insert v1.0 system prompt
     console.log('📝 Inserting coaching prompt v1.0...');
     
-    const [prompt] = await db.insert(promptVersions).values({
-      version: 'v1.0',
-      content: COACHING_PROMPT_V1,
-      summary: 'Initial build - baseline setup based on Smart but Scattered framework',
-      isActive: 1, // This is the active prompt
-    }).returning();
+    await sql`
+      INSERT INTO prompt_versions (version, content, summary, is_active)
+      VALUES ('v1.0', ${COACHING_PROMPT_V1}, 'Initial build - baseline setup based on Smart but Scattered framework', 1)
+      ON CONFLICT (version) DO NOTHING
+    `;
 
-    console.log('✅ Prompt v1.0 inserted:', prompt.version);
+    console.log('✅ Prompt v1.0 inserted');
 
-    // 2. Log the initial build
+    // Log the initial build
     console.log('📋 Creating build log entry...');
     
-    await db.insert(buildLog).values({
-      change: 'Created Personal Systems AI - ADHD Coach module',
-      rationale: 'Initial setup of coaching system with Supabase, Next.js, and OpenAI integration',
-    });
+    await sql`
+      INSERT INTO build_log (change, rationale)
+      VALUES ('Created Personal Systems AI - ADHD Coach module', 'Initial setup of coaching system with Supabase, Next.js, and OpenAI integration')
+    `;
 
     console.log('✅ Build log entry created');
 
-    // 3. Verify what we inserted
-    const activePrompt = await db.query.promptVersions.findFirst({
-      where: eq(promptVersions.isActive, 1),
-    });
+    // Verify
+    const [activePrompt] = await sql`
+      SELECT version, LENGTH(content) as content_length 
+      FROM prompt_versions 
+      WHERE is_active = 1
+    `;
 
     console.log('\n✨ Seed complete!');
     console.log('Active prompt version:', activePrompt?.version);
-    console.log('Prompt length:', activePrompt?.content.length, 'characters');
+    console.log('Prompt length:', activePrompt?.content_length, 'characters');
 
   } catch (error) {
     console.error('❌ Seed failed:', error);
-    process.exit(1);
+  } finally {
+    await sql.end();
   }
-
-  process.exit(0);
 }
 
 seed();
