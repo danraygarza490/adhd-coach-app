@@ -1,0 +1,8 @@
+
+> adhd-coach-app@1.0.0 dev
+> cd apps/web && npm run dev
+
+
+> web@0.1.0 dev
+> next dev
+
