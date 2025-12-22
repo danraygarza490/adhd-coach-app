@@ -1,7 +1,24 @@
-# Environment files (never commit secrets)
+build
+dist / media
+node_modules
+.DS_Store
 .env
-.env.local
-.env*.local
-scripts/
-**/node_modules/
-**/.next/
+.next
+.vercel
+
+# Payload default media upload directory
+public/media/
+
+public/robots.txt
+public/sitemap*.xml
+
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+#Dans Stuff
+/IgnoreThis
+/Ignore_subfolders_Dans_IMPORTANT
